@@ -1,6 +1,7 @@
 package com.llqlv.springcourse.controllers;
 
 import com.llqlv.springcourse.dao.UserDao;
+import com.llqlv.springcourse.dao.UserDaoTempl;
 import com.llqlv.springcourse.entity.User;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,11 +14,11 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/people")
 public class UserController {
 
-    private final UserDao userDao;
+    private final UserDaoTempl userDao;
 
     @Autowired
-    public UserController(UserDao userDao) {
-        this.userDao = userDao;
+    public UserController(UserDaoTempl userDaoTempl) {
+        this.userDao = userDaoTempl;
     }
 
     @GetMapping()
