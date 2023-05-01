@@ -32,5 +32,4 @@ public class BatchController {
         userDao.testBatchUpdate();
         return "redirect:/people";
     }
-
 }

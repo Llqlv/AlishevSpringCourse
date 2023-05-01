@@ -9,7 +9,6 @@ import org.springframework.stereotype.Component;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -40,7 +39,7 @@ public class UserDaoTempl {
 
     public void save(User user) {
         jdbcTemplate.update("""
-                INSERT INTO users(id, name, age, email) VALUES (1, ?, ?, ?)
+                INSERT INTO users(name, age, email) VALUES (?, ?, ?)
                 """, user.getName(), user.getAge(), user.getEmail());
     }
 
