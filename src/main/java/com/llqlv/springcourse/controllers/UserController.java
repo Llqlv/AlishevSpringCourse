@@ -1,6 +1,7 @@
 package com.llqlv.springcourse.controllers;
 
 import com.llqlv.springcourse.entity.User;
+import com.llqlv.springcourse.services.ItemService;
 import com.llqlv.springcourse.services.UserService;
 import com.llqlv.springcourse.util.UserValidator;
 import jakarta.validation.Valid;
@@ -16,11 +17,13 @@ public class UserController {
 
     private  final UserService userService;
     private final UserValidator userValidator;
+    private final ItemService itemService;
 
     @Autowired
-    public UserController(UserService userService, UserValidator userValidator) {
+    public UserController(UserService userService, UserValidator userValidator, ItemService itemService) {
         this.userService = userService;
         this.userValidator = userValidator;
+        this.itemService = itemService;
     }
 
 

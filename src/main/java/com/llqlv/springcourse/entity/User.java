@@ -5,6 +5,7 @@ import jakarta.validation.constraints.*;
 import lombok.*;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.Objects;
 
 @Data
@@ -34,6 +35,10 @@ public class User {
     @Email(message = "Email should be valid")
     @Column(name = "email")
     private String email;
+
+    @OneToMany(mappedBy = "owner")
+    @ToString.Exclude
+    private List<Item> items;
 
     @Override
     public boolean equals(Object o) {
