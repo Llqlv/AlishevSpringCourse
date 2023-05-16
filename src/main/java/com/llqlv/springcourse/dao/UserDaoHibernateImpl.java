@@ -1,10 +1,9 @@
 package com.llqlv.springcourse.dao;
 
 import com.llqlv.springcourse.entity.User;
-import org.hibernate.Session;
-import org.hibernate.SessionFactory;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import org.hibernate.query.Query;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -15,41 +14,47 @@ import java.util.Optional;
 @Component
 public class UserDaoHibernateImpl implements UserDao {
 
-    private final SessionFactory sessionFactory;
+    //ПОЛНАЯ ЗАМЕНА Hibernate методов и классов на спецификацию JPA
+    // https://www.baeldung.com/jpa-hibernate-persistence-context
+    // https://www.baeldung.com/hibernate-entitymanager
 
-    @Autowired
-    public UserDaoHibernateImpl(SessionFactory sessionFactory) {
-        this.sessionFactory = sessionFactory;
-    }
+//    private final SessionFactory sessionFactory;
+    @PersistenceContext
+    private EntityManager entityManager;
+
+
 
     @Override
     @Transactional(readOnly = true)
     public List<User> getAll() {
-        var session = sessionFactory.getCurrentSession();
-        // Дальнейшая работа с Hibernate
-
-        var userU = session.createQuery("SELECT U FROM User U", User.class).getResultList();
-
-        return userU;
+        return entityManager.createQuery("SELECT U FROM User U", User.class).getResultList();
     }
 
     @Override
     @Transactional(readOnly = true)
     public Optional<User> getPersonById(int id) {
-        var session = sessionFactory.getCurrentSession();
 
-        return Optional.ofNullable(session.get(User.class, id));
+        return Optional.ofNullable(entityManager.find(User.class, id));
+
     }
 
-    @Transactional
+    // Было так
+    /*@Transactional
     @Override
     public void save(User user) {
         var session = sessionFactory.getCurrentSession();
 
         session.save(user);
+    }*/
+    // Стало так
+    @Transactional
+    @Override
+    public void save(User user) {
+        entityManager.merge(user);
     }
 
-    @Transactional
+    // Было так
+    /*@Transactional
     @Override
     public void update(int id, User updatedUser) {
         var session = sessionFactory.getCurrentSession();
@@ -59,25 +64,38 @@ public class UserDaoHibernateImpl implements UserDao {
         userToBeUpdated.setName(updatedUser.getName());
         userToBeUpdated.setAge(updatedUser.getAge());
         userToBeUpdated.setEmail(updatedUser.getEmail());
+    }*/
+    //Стало так
+    @Transactional
+    @Override
+    public void update(int id, User updatedUser) {
+        var userToBeUpdated = entityManager.find(User.class, id);
+
+        userToBeUpdated.setName(updatedUser.getName());
+        userToBeUpdated.setAge(updatedUser.getAge());
+        userToBeUpdated.setEmail(updatedUser.getEmail());
+
+        entityManager.detach(userToBeUpdated);
     }
 
     @Override
     @Transactional
     public void delete(int id) {
-        var session = sessionFactory.getCurrentSession();
+//        var session = sessionFactory.getCurrentSession();
 
-        session.remove(session.get(User.class, id));
+//        session.remove(session.get(User.class, id));
+        entityManager.remove(entityManager.find(User.class, id));
     }
+
 
     @Override
     @Transactional
     public Optional<User> getPersonByEmail(String email) {
-        var session = sessionFactory.getCurrentSession();
 
-        Query<User> query = session.createQuery("from User u where u.email=:email", User.class);
+        var query = entityManager.createQuery("SELECT user FROM User user WHERE user.email =:email");
         query.setParameter("email", email);
-        User user = query.uniqueResult();
+        Optional<User> user = query.getResultList().stream().findFirst();
 
-        return Optional.ofNullable(user);
+        return user;
     }
 }

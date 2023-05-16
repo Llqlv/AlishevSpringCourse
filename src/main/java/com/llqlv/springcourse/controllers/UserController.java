@@ -1,7 +1,7 @@
 package com.llqlv.springcourse.controllers;
 
-import com.llqlv.springcourse.dao.UserDao;
 import com.llqlv.springcourse.entity.User;
+import com.llqlv.springcourse.services.UserService;
 import com.llqlv.springcourse.util.UserValidator;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,19 +14,20 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/people")
 public class UserController {
 
-    private final UserDao userDao;
+    private  final UserService userService;
     private final UserValidator userValidator;
 
     @Autowired
-    public UserController(UserDao userDao, UserValidator userValidator) {
-        this.userDao = userDao;
+    public UserController(UserService userService, UserValidator userValidator) {
+        this.userService = userService;
         this.userValidator = userValidator;
     }
+
 
     @GetMapping()
     public String index(Model model) {
         //Получаем всех людей из DAO и отдаем на отображение
-        model.addAttribute("users", userDao.getAll());
+        model.addAttribute("users", userService.findAll());
         return "people/index";
     }
 
@@ -34,7 +35,7 @@ public class UserController {
     public String show(@PathVariable("id") int id,
                        Model model) {
         //Показываем одного юзера
-        model.addAttribute("user", userDao.getPersonById(id).get());
+        model.addAttribute("user", userService.findOne(id));
         return "people/show";
     }
 
@@ -51,14 +52,14 @@ public class UserController {
             return "people/new";
         }
 
-        userDao.save(user);
+        userService.save(user);
         return "redirect:/people";
     }
 
     @GetMapping("/{id}/edit")
     public String edit(@PathVariable("id") int id,
                        Model model) {
-        model.addAttribute("user", userDao.getPersonById(id).get());
+        model.addAttribute("user", userService.findOne(id));
         return "people/edit";
     }
 
@@ -66,13 +67,13 @@ public class UserController {
     public String update(@PathVariable("id") int id,
                          @ModelAttribute("user") @Valid User user,
                          BindingResult bindingResult) {
-        userDao.update(id, user);
+        userService.update(id, user);
         return "redirect:/people";
     }
 
     @DeleteMapping("/{id}")
     public String delete(@PathVariable("id") int id) {
-        userDao.delete(id);
+        userService.delete(id);
         return "redirect:/people";
     }
 }
