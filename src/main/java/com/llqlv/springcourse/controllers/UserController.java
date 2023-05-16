@@ -1,8 +1,8 @@
 package com.llqlv.springcourse.controllers;
 
 import com.llqlv.springcourse.dao.UserDao;
-import com.llqlv.springcourse.dao.UserDaoTempl;
 import com.llqlv.springcourse.entity.User;
+import com.llqlv.springcourse.util.UserValidator;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -14,11 +14,13 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/people")
 public class UserController {
 
-    private final UserDaoTempl userDao;
+    private final UserDao userDao;
+    private final UserValidator userValidator;
 
     @Autowired
-    public UserController(UserDaoTempl userDaoTempl) {
-        this.userDao = userDaoTempl;
+    public UserController(UserDao userDao, UserValidator userValidator) {
+        this.userDao = userDao;
+        this.userValidator = userValidator;
     }
 
     @GetMapping()
@@ -32,7 +34,7 @@ public class UserController {
     public String show(@PathVariable("id") int id,
                        Model model) {
         //Показываем одного юзера
-        model.addAttribute("user", userDao.getPersonById(id));
+        model.addAttribute("user", userDao.getPersonById(id).get());
         return "people/show";
     }
 
@@ -44,6 +46,7 @@ public class UserController {
     @PostMapping()
     public String create(@ModelAttribute("user") @Valid User user,
                          BindingResult bindingResult) {
+        userValidator.validate(user, bindingResult);
         if(bindingResult.hasErrors()){
             return "people/new";
         }
@@ -55,7 +58,7 @@ public class UserController {
     @GetMapping("/{id}/edit")
     public String edit(@PathVariable("id") int id,
                        Model model) {
-        model.addAttribute("user", userDao.getPersonById(id));
+        model.addAttribute("user", userDao.getPersonById(id).get());
         return "people/edit";
     }
 
@@ -63,10 +66,6 @@ public class UserController {
     public String update(@PathVariable("id") int id,
                          @ModelAttribute("user") @Valid User user,
                          BindingResult bindingResult) {
-        if(bindingResult.hasErrors()) {
-            return "people/edit";
-        }
-
         userDao.update(id, user);
         return "redirect:/people";
     }

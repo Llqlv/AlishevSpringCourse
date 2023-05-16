@@ -1,3 +1,4 @@
+/*
 package com.llqlv.springcourse.dao;
 
 import com.llqlv.springcourse.entity.User;
@@ -10,6 +11,7 @@ import org.springframework.stereotype.Component;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -24,17 +26,19 @@ public class UserDaoTempl {
     }
 
     //Использование собственного RowMapper'а -> перевод строки в объект
-    /*public List<User> getAll() {
+    */
+/*public List<User> getAll() {
         return jdbcTemplate.query("SELECT * FROM users", new UserMapper());
-    }*/
+    }*//*
+
 
     public List<User> getAll() {
         return jdbcTemplate.query("SELECT * FROM users", new BeanPropertyRowMapper<>(User.class));
     }
 
-    public User getPersonById(int id) {
+    public Optional<User> getPersonById(int id) {
         return jdbcTemplate.query("SELECT * FROM users WHERE id = ?", new Object[]{id}, new BeanPropertyRowMapper<>(User.class))
-                .stream().findAny().orElse(null);
+                .stream().findAny();
     }
 
     public void save(User user) {
@@ -56,10 +60,16 @@ public class UserDaoTempl {
         jdbcTemplate.update("DELETE FROM users WHERE id=?", id);
     }
 
+    public Optional<User> getPersonByEmail(String email) {
+        return jdbcTemplate.query("SELECT * FROM users WHERE email=?", new Object[]{email}, new BeanPropertyRowMapper<>(User.class))
+                .stream().findAny();
+    }
+
     // ------------------------------------------------------------
     //                 Batch Update vs Multiple update
     //                 Тестируем производительность пакетной вставки
     // ------------------------------------------------------------
+
     public void testMultipleUpdate() {
         List<User> users = create1000people();
 
@@ -71,7 +81,7 @@ public class UserDaoTempl {
         System.out.println("Time: " + (after - before));
     }
 
-    
+
 
     private List<User> create1000people() {
 //        List<User> users = new ArrayList<>();
@@ -109,3 +119,4 @@ public class UserDaoTempl {
         System.out.println("Time: " + (after - before));
     }
 }
+*/
